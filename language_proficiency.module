@@ -1,0 +1,180 @@
+<?php
+
+/**
+ * Implementation of hook_field_settings().
+ */
+function language_proficiency_field_settings($op, $field) {
+  switch ($op) {
+    case 'form':
+      $form = array();
+      return $form;
+    case 'save':
+      return array('iso_639_code','proficiency_level');
+    case 'database columns':
+      return array(
+        'iso_639_code' => array(
+          'type' => 'varchar', 
+          'length' => 3, 
+          'not null' => TRUE, 
+          'sortable' => TRUE, 
+          'views' => TRUE
+        ),
+        'proficiency_level' => array(
+          'type' => 'int', 
+          'unsigned' => TRUE,
+          'not null' => TRUE, 
+          'default' => 0,
+          'sortable' => TRUE, 
+          'views' => TRUE
+        ),
+      );
+    case 'views data':
+      break;
+  }
+}
+
+function language_proficiency_field($op, &$node, $field, &$items, $teaser, $page) {
+
+  switch ($op) {
+    // Do validation on the field values here. The widget 
+    // will do its own validation and you cannot make any 
+    // assumptions about what kind of widget has been used, 
+    // so don't validate widget values, only field values.
+    case 'validate':
+      return $items;
+  }
+  
+}
+
+/**
+* Implementation of hook_content_is_empty().
+* 
+* CCK has no way to know if something like a zero is
+* an empty value or a valid value, so return
+* TRUE or FALSE to a populated field $item array.
+* CCK uses this to remove empty multi-value elements
+* from forms.
+*/
+function language_proficiency_content_is_empty($item, $field) {
+  if (empty($item['iso_639_code'])) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Implementation of hook_widget_info().
+  */
+function language_proficiency_widget_info() {
+  return array(
+    'language_proficiency_widget' => array(
+      'label' => t('Language Proficiency'),
+      'field types' => array('language_proficiency'),
+      'multiple values' => CONTENT_HANDLE_CORE,
+      'callbacks' => array('default value' => CONTENT_CALLBACK_DEFAULT),
+      'description' => t('An edit widget for Language Proficiency fields that includes a textfield for a ISO 639-3 language code and a select list of proficiency levels.' ),
+    ),
+  );
+}
+
+/**
+ * Implementation of hook_elements().
+ */
+function language_proficiency_elements() {
+  $elements = array(
+    'language_proficiency_widget' => array(
+      '#input' => TRUE,
+      '#process' => array('language_proficiency_language_proficiency_process'),
+    ),
+  );
+  return $elements;
+}
+
+function language_proficiency_language_proficiency_process($element, $edit, &$form_state, $form) {
+
+    $field = content_fields($element['#field_name'], $element['#type_name']);
+
+    $element['iso_639_code'] = array(
+      '#type' => 'textfield',
+      '#title' => t('ISO 639 code'),
+      '#description' => t('Enter langcode here.'),
+      '#size' => 8,
+      '#maxlength' => 32,
+      '#weight' => 1,
+      '#autocomplete_path' => 'iso_639_3/autocomplete',
+      '#default_value' => isset($element['#value']['iso_639_code'])? $element['#value']['iso_639_code']: '',
+    );
+
+    $element['proficiency_level'] = array(
+      '#type' => 'select',
+      '#title' => t('Proficiency Level'),
+      '#multiple' => FALSE,
+      '#description' => t('The description appears usually below the item.'),
+      '#options' => array(
+        1 => 'Basic',
+        2 => 'Intermediate',
+        3 => 'Advanced',
+        4 => 'Fluent',
+      ),
+      '#default_value' => isset($element['#value']['proficiency_level'])? $element['#value']['proficiency_level']: 0,
+      '#weight' => 2,
+    );
+    
+    //krumo ($element);
+    return $element;
+}
+
+function language_proficiency_widget(&$form, &$form_state, $field, $items, $delta = 0) {
+  
+  $element = array(
+    '#type' => $field['widget']['type'],
+    '#default_value' => isset($items[$delta]) ? $items[$delta] : '',
+  );
+  return $element;
+  
+}
+
+/**
+ * Implements hook_field_info().
+ */
+function language_proficiency_field_info() {
+  return array(
+    'language_proficiency' => array(
+      'label' => t('Language Proficiency'),
+      'description' => t('This field stores language proficiency details.'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function language_proficiency_theme() {
+  return array(
+    'language_proficiency_widget' => array(
+      'arguments' => array('element' => NULL),
+    ),
+    'language_proficiency_formatter_default' => array(
+      'arguments' => array('element' => NULL),      
+    )
+  );
+}
+
+function theme_language_proficiency_widget($element) {
+  //dsm('Theme function called');
+  return $element['#children'];
+}
+
+function theme_language_proficiency_formatter_info() {
+  return array(
+    'default' => array(
+      'label' => 'Default LP formatter',
+      'field types' => array('language_proficiency'),
+    ),
+  );
+} 
+
+function theme_language_proficiency_formatter_default($element) {
+  //dsm('Theme function called');
+  return '<div class="Arse">ARSE</div>';
+}

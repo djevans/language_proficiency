@@ -1,0 +1,6 @@
+name = Language Proficiency
+description = Defines a compound CCK field type to track language proficiency in user profiles.
+dependencies[] = content
+dependencies[] = content_profile
+dependencies[] = iso_639_3
+core = 6.x

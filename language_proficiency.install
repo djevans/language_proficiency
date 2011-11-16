@@ -1,0 +1,37 @@
+<?php
+
+/**
+ * Implements hook_install().
+ */
+function hook_install() {
+  drupal_load('module', 'content');
+  content_notify('install','language_proficiency');
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function hook_uninstall() {
+  drupal_load('module', 'content');
+  content_notify('uninstall','language_proficiency');
+}
+
+/**
+ * Implements hook_enable().
+ */
+function hook_enable() {
+  drupal_load('module', 'content');
+  content_notify('enable','language_proficiency');
+}
+
+/**
+ * Implements hook_disable().
+ */
+function hook_disable() {
+  drupal_load('module', 'content');
+  content_notify('disable','language_proficiency');
+}
+
+
+
+
